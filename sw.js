@@ -1,13 +1,15 @@
 
-const CACHE_NAME = "gps-brasil-2d-v1";
+// Nome da versão do cache
+const CACHE_NAME = "gps-brasil-v2";
 
+// Arquivos locais do aplicativo
 const APP_FILES = [
   "./",
   "./index.html",
   "./manifest.json"
 ];
 
-// Instala e guarda os arquivos básicos
+// Instala o Service Worker
 self.addEventListener("install", function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
@@ -17,7 +19,7 @@ self.addEventListener("install", function(event) {
   self.skipWaiting();
 });
 
-// Ativa a nova versão e limpa caches antigos
+// Ativa a nova versão
 self.addEventListener("activate", function(event) {
   event.waitUntil(
     caches.keys().then(function(names) {
@@ -33,29 +35,29 @@ self.addEventListener("activate", function(event) {
   self.clients.claim();
 });
 
-// Recupera arquivos locais quando possível
+// Cacheia apenas arquivos do próprio site
 self.addEventListener("fetch", function(event) {
-  const request = event.request;
-  const url = new URL(request.url);
+  const url = new URL(event.request.url);
 
+  // Não interfere nos mapas e bibliotecas externas
   if (url.origin !== self.location.origin) {
     return;
   }
 
   event.respondWith(
-    caches.match(request).then(function(cached) {
-      if (cached) return cached;
+    caches.match(event.request).then(function(response) {
+      if (response) return response;
 
-      return fetch(request).then(function(response) {
-        if (response && response.ok) {
-          const copy = response.clone();
+      return fetch(event.request).then(function(networkResponse) {
+        if (networkResponse && networkResponse.ok) {
+          const copy = networkResponse.clone();
 
           caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(request, copy);
+            cache.put(event.request, copy);
           });
         }
 
-        return response;
+        return networkResponse;
       });
     })
   );
