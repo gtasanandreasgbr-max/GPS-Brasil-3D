@@ -1,0 +1,12 @@
+{
+  "name": "GPS Brasil 3D",
+  "short_name": "GPS Brasil 3D",
+  "description": "Aplicativo de localização por GPS com mapa de satélite.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#071521",
+  "theme_color": "#071521",
+  "lang": "pt-BR",
+  "icons": []
+}
