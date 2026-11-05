@@ -1,15 +1,15 @@
 
-// Nova versão do aplicativo
-const CACHE_NAME = "gps-brasil-v5";
+// Nova versão do GPS Brasil
+const CACHE_NAME = "gps-brasil-v6";
 
-// Arquivos básicos
+// Arquivos principais
 const APP_FILES = [
   "./",
   "./index.html",
   "./manifest.json"
 ];
 
-// Instala nova versão
+// INSTALAÇÃO
 self.addEventListener("install", function(event) {
 
   event.waitUntil(
@@ -22,7 +22,7 @@ self.addEventListener("install", function(event) {
 
 });
 
-// Remove caches antigos
+// ATUALIZAÇÃO
 self.addEventListener("activate", function(event) {
 
   event.waitUntil(
@@ -45,18 +45,18 @@ self.addEventListener("activate", function(event) {
 
 });
 
-// Atualiza páginas do próprio aplicativo
+// CARREGAMENTO DOS ARQUIVOS
 self.addEventListener("fetch", function(event) {
 
   const request = event.request;
   const url = new URL(request.url);
 
-  // Não interfere nos servidores externos
+  // Não interfere nos mapas externos
   if(url.origin !== self.location.origin) {
     return;
   }
 
-  // Busca a versão mais recente da página
+  // Atualiza a página pela internet
   if(request.mode === "navigate") {
 
     event.respondWith(
@@ -83,7 +83,7 @@ self.addEventListener("fetch", function(event) {
 
   }
 
-  // Outros arquivos locais
+  // Arquivos locais
   event.respondWith(
 
     caches.match(request).then(function(response) {
