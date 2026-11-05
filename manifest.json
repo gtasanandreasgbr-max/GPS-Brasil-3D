@@ -1,13 +1,12 @@
 
 {
-  "name": "GPS Brasil - Mapa de Ruas",
+  "name": "GPS Brasil",
   "short_name": "GPS Brasil",
-  "description": "GPS de caminhada com mapa 2D de ruas.",
-  "start_url": "./",
+  "description": "Mapa 2D com localização e direção.",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef2f4",
-  "theme_color": "#102536",
-  "lang": "pt-BR",
-  "icons": []
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "pt-BR"
 }
