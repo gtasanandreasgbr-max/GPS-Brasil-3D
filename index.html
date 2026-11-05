@@ -5,294 +5,306 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#ffffff">
-<meta name="description" content="GPS Brasil - mapa de ruas e acompanhamento de caminhada.">
+<meta name="description" content="GPS Brasil - localização e registro de caminhadas">
 <title>GPS Brasil</title>
 
 <link rel="manifest" href="./manifest.json">
 
-<!-- Biblioteca do mapa: dois endereços para aumentar a compatibilidade -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<!-- Biblioteca do mapa -->
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 *{box-sizing:border-box}
 
 html,body{
-  width:100%;
-  height:100%;
-  margin:0;
-  padding:0;
+width:100%;
+height:100%;
+margin:0;
+padding:0;
 }
 
 body{
-  font-family:Arial,Helvetica,sans-serif;
-  overflow:hidden;
-  background:#e9edf1;
-  color:#243342;
+font-family:Arial,Helvetica,sans-serif;
+overflow:hidden;
+background:#e9edf1;
+color:#243342;
 }
 
 #map{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  z-index:1;
-  background:#e9edf1;
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+z-index:1;
+background:#e9edf1;
 }
 
 .topbar{
-  position:absolute;
-  z-index:1000;
-  top:10px;
-  left:10px;
-  right:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  padding:10px;
-  border-radius:14px;
-  background:rgba(255,255,255,.97);
-  box-shadow:0 2px 12px rgba(0,0,0,.15);
+position:absolute;
+z-index:1000;
+top:10px;
+left:10px;
+right:10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:8px;
+padding:10px;
+border-radius:14px;
+background:rgba(255,255,255,.97);
+box-shadow:0 2px 12px rgba(0,0,0,.15);
 }
 
 .brand{
-  display:flex;
-  align-items:center;
-  gap:9px;
+display:flex;
+align-items:center;
+gap:9px;
 }
 
 .brand-icon{
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  border-radius:10px;
-  background:#2584ed;
-  color:white;
-  font-size:25px;
+width:38px;
+height:38px;
+display:grid;
+place-items:center;
+border-radius:10px;
+background:#2584ed;
+color:white;
+font-size:25px;
 }
 
 .brand strong{
-  display:block;
-  font-size:14px;
+display:block;
+font-size:14px;
 }
 
 .brand small{
-  display:block;
-  margin-top:3px;
-  color:#71808d;
-  font-size:9px;
+display:block;
+margin-top:3px;
+color:#71808d;
+font-size:9px;
 }
 
 #status{
-  max-width:45%;
-  color:#5c6b78;
-  font-size:10px;
-  line-height:1.3;
-  text-align:right;
+max-width:45%;
+color:#5c6b78;
+font-size:10px;
+line-height:1.3;
+text-align:right;
 }
 
 .bottom-panel{
-  position:absolute;
-  z-index:1000;
-  left:10px;
-  right:10px;
-  bottom:10px;
-  padding:13px;
-  border-radius:15px;
-  background:rgba(255,255,255,.97);
-  box-shadow:0 2px 15px rgba(0,0,0,.18);
+position:absolute;
+z-index:1000;
+left:10px;
+right:10px;
+bottom:10px;
+padding:13px;
+border-radius:15px;
+background:rgba(255,255,255,.97);
+box-shadow:0 2px 15px rgba(0,0,0,.18);
 }
 
 .panel-label{
-  margin-bottom:6px;
-  color:#7a8792;
-  font-size:10px;
-  font-weight:bold;
+margin-bottom:6px;
+color:#7a8792;
+font-size:10px;
+font-weight:bold;
 }
 
 #coordinates{
-  min-height:18px;
-  font-size:13px;
-  font-weight:bold;
+min-height:18px;
+font-size:13px;
+font-weight:bold;
 }
 
 #accuracy{
-  margin-top:5px;
-  color:#71808d;
-  font-size:11px;
+margin-top:5px;
+color:#71808d;
+font-size:11px;
 }
 
 .buttons{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-top:12px;
+display:flex;
+flex-wrap:wrap;
+gap:7px;
+margin-top:12px;
 }
 
 button{
-  min-height:42px;
-  padding:0 12px;
-  border:0;
-  border-radius:9px;
-  color:white;
-  font-size:11px;
-  font-weight:bold;
-  cursor:pointer;
+min-height:42px;
+padding:0 12px;
+border:0;
+border-radius:9px;
+color:white;
+font-size:11px;
+font-weight:bold;
+cursor:pointer;
 }
 
 #startButton{
-  flex:1;
-  background:#2584ed;
+flex:1;
+background:#2584ed;
 }
 
 #stopButton{
-  background:#647482;
+background:#647482;
 }
 
 #clearButton{
-  background:#d9534f;
+background:#d9534f;
 }
 
 button:disabled{
-  opacity:.5;
+opacity:.5;
 }
 
+/* Ponto azul de localização */
 .gps-marker{
-  position:relative;
-  width:44px;
-  height:44px;
+position:relative;
+width:44px;
+height:44px;
 }
 
 .gps-bearing{
-  position:absolute;
-  inset:0;
-  transform:rotate(0deg);
-  transform-origin:50% 50%;
+position:absolute;
+inset:0;
+transform:rotate(0deg);
 }
 
 .gps-cone{
-  position:absolute;
-  left:12px;
-  top:-2px;
-  width:20px;
-  height:29px;
-  background:rgba(36,125,244,.38);
-  clip-path:polygon(50% 0,100% 100%,50% 78%,0 100%);
+position:absolute;
+left:12px;
+top:-2px;
+width:20px;
+height:29px;
+background:rgba(36,125,244,.38);
+clip-path:polygon(50% 0,100% 100%,50% 78%,0 100%);
 }
 
 .gps-dot{
-  position:absolute;
-  left:10px;
-  top:10px;
-  width:24px;
-  height:24px;
-  border:3px solid white;
-  border-radius:50%;
-  background:#3985f4;
-  box-shadow:0 1px 6px rgba(0,0,0,.4);
+position:absolute;
+left:10px;
+top:10px;
+width:24px;
+height:24px;
+border:3px solid white;
+border-radius:50%;
+background:#3985f4;
+box-shadow:0 1px 6px rgba(0,0,0,.4);
 }
 
+/* Controles do mapa */
 .leaflet-control-zoom{
-  margin-top:75px!important;
-  border:0!important;
-  box-shadow:0 2px 9px rgba(0,0,0,.16)!important;
+margin-top:75px!important;
+border:0!important;
+box-shadow:0 2px 9px rgba(0,0,0,.16)!important;
 }
 
 .leaflet-control-zoom a{
-  color:#34495a!important;
-  border:0!important;
+color:#34495a!important;
+border:0!important;
 }
 
 .leaflet-control-attribution{
-  font-size:9px!important;
+font-size:9px!important;
 }
 
 .map-message{
-  position:absolute;
-  z-index:900;
-  top:50%;
-  left:50%;
-  width:85%;
-  max-width:330px;
-  padding:14px;
-  border-radius:12px;
-  background:white;
-  color:#455563;
-  text-align:center;
-  font-size:13px;
-  line-height:1.5;
-  transform:translate(-50%,-50%);
-  box-shadow:0 2px 12px rgba(0,0,0,.15);
+position:absolute;
+z-index:900;
+top:50%;
+left:50%;
+width:85%;
+max-width:330px;
+padding:14px;
+border-radius:12px;
+background:white;
+color:#455563;
+text-align:center;
+font-size:13px;
+line-height:1.5;
+transform:translate(-50%,-50%);
+box-shadow:0 2px 12px rgba(0,0,0,.15);
 }
 
 @media(max-width:480px){
-  .topbar{
-    top:7px;
-    left:7px;
-    right:7px;
-    padding:9px;
-  }
+.topbar{
+top:7px;
+left:7px;
+right:7px;
+padding:9px;
+}
 
-  .bottom-panel{
-    left:7px;
-    right:7px;
-    bottom:7px;
-    padding:11px;
-  }
+.bottom-panel{
+left:7px;
+right:7px;
+bottom:7px;
+padding:11px;
+}
 
-  #status{
-    max-width:42%;
-    font-size:9px;
-  }
+#status{
+max-width:42%;
+font-size:9px;
+}
 
-  button{
-    min-height:40px;
-    padding:0 9px;
-    font-size:10px;
-  }
+button{
+min-height:40px;
+padding:0 9px;
+font-size:10px;
+}
 }
 </style>
 </head>
 
 <body>
 
+<!-- Área do mapa -->
 <div id="map"></div>
 
+<!-- Cabeçalho -->
 <header class="topbar">
-  <div class="brand">
-    <div class="brand-icon">⌖</div>
-    <div>
-      <strong>GPS BRASIL</strong>
-      <small>MAPA DE RUAS • CAMINHADA</small>
-    </div>
-  </div>
-  <div id="status">Carregando mapa...</div>
+<div class="brand">
+<div class="brand-icon">⌖</div>
+<div>
+<strong>GPS BRASIL</strong>
+<small>MAPA DE RUAS • CAMINHADA</small>
+</div>
+</div>
+<div id="status">Carregando mapa...</div>
 </header>
 
+<!-- Painel de localização -->
 <section class="bottom-panel">
-  <div class="panel-label">MINHA LOCALIZAÇÃO</div>
-  <div id="coordinates">Aguardando localização...</div>
-  <div id="accuracy">Ative o GPS e permita o acesso à localização.</div>
 
-  <div class="buttons">
-    <button id="startButton">● INICIAR GPS</button>
-    <button id="stopButton" disabled>PARAR</button>
-    <button id="clearButton">LIMPAR CAMINHO</button>
-  </div>
+<div class="panel-label">MINHA LOCALIZAÇÃO</div>
+
+<div id="coordinates">
+Aguardando localização...
+</div>
+
+<div id="accuracy">
+Ative o GPS e permita o acesso à localização.
+</div>
+
+<div class="buttons">
+<button id="startButton">● INICIAR GPS</button>
+<button id="stopButton" disabled>PARAR</button>
+<button id="clearButton">LIMPAR CAMINHO</button>
+</div>
+
 </section>
 
 <div id="mapMessage" class="map-message">
-  Carregando o mapa. Verifique sua conexão com a internet.
+Carregando mapa...
 </div>
 
-<!-- Carrega a biblioteca do mapa -->
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Biblioteca Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-// Elementos da tela
+
+// ELEMENTOS DA INTERFACE
 const statusText=document.getElementById("status");
 const coordinatesText=document.getElementById("coordinates");
 const accuracyText=document.getElementById("accuracy");
@@ -301,10 +313,10 @@ const stopButton=document.getElementById("stopButton");
 const clearButton=document.getElementById("clearButton");
 const mapMessage=document.getElementById("mapMessage");
 
-// Chave para guardar o caminho no navegador
-const ROUTE_STORAGE_KEY="gpsBrasilCaminhoV1";
+// CHAVE PARA SALVAR O CAMINHO
+const ROUTE_STORAGE_KEY="gpsBrasilCaminhoV2";
 
-// Variáveis principais
+// VARIÁVEIS DO APLICATIVO
 let map=null;
 let userMarker=null;
 let accuracyCircle=null;
@@ -313,397 +325,458 @@ let watchId=null;
 let lastTrailPoint=null;
 let firstPosition=true;
 let orientationEnabled=false;
-let fallbackUsed=false;
 
-// Posição inicial aproximada do Brasil
+// CENTRO INICIAL DO BRASIL
 const brasilCenter=[-14.2,-51.9];
 
-// Mostra mensagens na tela
+// MOSTRAR MENSAGEM
 function showMessage(message){
-  mapMessage.textContent=message;
-  mapMessage.style.display="block";
+mapMessage.textContent=message;
+mapMessage.style.display="block";
 }
 
-// Esconde a mensagem
+// ESCONDER MENSAGEM
 function hideMessage(){
-  mapMessage.style.display="none";
+mapMessage.style.display="none";
 }
 
-// Inicia o mapa quando a biblioteca estiver disponível
+// INICIALIZAR MAPA
 function initializeMap(){
 
-  // Verifica se a biblioteca Leaflet foi carregada
-  if(typeof L==="undefined"){
-    statusText.textContent="Erro ao carregar mapa";
-    showMessage("Não foi possível carregar a biblioteca do mapa. Verifique sua internet e atualize a página.");
-    return;
-  }
-
-  // Cria o mapa 2D
-  map=L.map("map",{
-    zoomControl:false,
-    attributionControl:true
-  }).setView(brasilCenter,4);
-
-  // Camada de mapa claro, com nomes de ruas e estabelecimentos
-  const cartoLayer=L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    {
-      subdomains:"abcd",
-      maxZoom:20,
-      attribution:'&copy; OpenStreetMap &copy; CARTO'
-    }
-  );
-
-  // Alternativa caso o primeiro mapa falhe
-  const osmLayer=L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      maxZoom:19,
-      attribution:'&copy; OpenStreetMap'
-    }
-  );
-
-  // Tenta carregar o mapa CARTO
-  cartoLayer.addTo(map);
-
-  // Se houver erro nos blocos do mapa, tenta OpenStreetMap
-  cartoLayer.on("tileerror",function(){
-    if(!fallbackUsed){
-      fallbackUsed=true;
-      map.removeLayer(cartoLayer);
-      osmLayer.addTo(map);
-      statusText.textContent="Usando mapa alternativo";
-    }
-  });
-
-  // Controles de zoom
-  L.control.zoom({position:"topright"}).addTo(map);
-
-  // Linha azul do caminho percorrido
-  routeLine=L.polyline([],{
-    color:"#287df0",
-    weight:6,
-    opacity:.88,
-    lineCap:"round",
-    lineJoin:"round"
-  }).addTo(map);
-
-  // Recupera o trajeto salvo anteriormente
-  loadSavedRoute();
-
-  // Ajusta o mapa depois de abrir no celular
-  setTimeout(function(){
-    map.invalidateSize();
-  },500);
-
-  statusText.textContent="Mapa carregado";
-  hideMessage();
+if(typeof L==="undefined"){
+statusText.textContent="Erro ao carregar mapa";
+showMessage("Não foi possível carregar o mapa. Verifique sua internet.");
+return;
 }
 
-// Ícone do ponto azul com cone
+// CRIA MAPA 2D
+map=L.map("map",{
+zoomControl:false,
+attributionControl:true
+}).setView(brasilCenter,4);
+
+// CAMADA OPENSTREETMAP
+// Não precisa de chave de API
+const osmLayer=L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+maxZoom:19,
+attribution:'&copy; OpenStreetMap contributors',
+subdomains:"abc"
+}
+);
+
+// ADICIONA MAPA
+osmLayer.addTo(map);
+
+// VERIFICA ERRO NO CARREGAMENTO DAS IMAGENS
+let tileLoaded=false;
+
+osmLayer.on("tileload",function(){
+tileLoaded=true;
+hideMessage();
+statusText.textContent="Mapa carregado";
+});
+
+osmLayer.on("tileerror",function(){
+if(!tileLoaded){
+showMessage("Não foi possível carregar as ruas. Verifique sua conexão com a internet.");
+statusText.textContent="Erro no mapa";
+}
+});
+
+// CONTROLES DE ZOOM
+L.control.zoom({
+position:"topright"
+}).addTo(map);
+
+// LINHA AZUL DO CAMINHO
+routeLine=L.polyline([],{
+color:"#287df0",
+weight:6,
+opacity:.88,
+lineCap:"round",
+lineJoin:"round"
+}).addTo(map);
+
+// RECUPERA CAMINHO ANTERIOR
+loadSavedRoute();
+
+// AJUSTA O MAPA PARA CELULAR
+setTimeout(function(){
+map.invalidateSize();
+},500);
+
+statusText.textContent="Mapa carregado";
+}
+
+// CRIA ÍCONE AZUL
 function createGpsIcon(){
-  return L.divIcon({
-    className:"",
-    html:
-      '<div class="gps-marker">'+
-        '<div class="gps-bearing" id="gpsBearing">'+
-          '<div class="gps-cone"></div>'+
-        '</div>'+
-        '<div class="gps-dot"></div>'+
-      '</div>',
-    iconSize:[44,44],
-    iconAnchor:[22,22]
-  });
+
+return L.divIcon({
+className:"",
+html:
+'<div class="gps-marker">'+
+'<div class="gps-bearing" id="gpsBearing">'+
+'<div class="gps-cone"></div>'+
+'</div>'+
+'<div class="gps-dot"></div>'+
+'</div>',
+iconSize:[44,44],
+iconAnchor:[22,22]
+});
+
 }
 
-// Guarda o caminho no navegador
+// SALVA O CAMINHO NO NAVEGADOR
 function saveRoute(){
-  if(!routeLine)return;
 
-  const points=routeLine.getLatLngs().map(function(point){
-    return [point.lat,point.lng];
-  });
+if(!routeLine)return;
 
-  try{
-    localStorage.setItem(
-      ROUTE_STORAGE_KEY,
-      JSON.stringify(points.slice(-3000))
-    );
-  }catch(error){
-    console.log("Não foi possível salvar o caminho:",error);
-  }
+const points=routeLine.getLatLngs().map(function(point){
+return [point.lat,point.lng];
+});
+
+try{
+localStorage.setItem(
+ROUTE_STORAGE_KEY,
+JSON.stringify(points.slice(-3000))
+);
+}catch(error){
+console.log("Erro ao salvar caminho:",error);
 }
 
-// Recupera o caminho salvo
+}
+
+// RECUPERA CAMINHO SALVO
 function loadSavedRoute(){
-  try{
-    const saved=localStorage.getItem(ROUTE_STORAGE_KEY);
 
-    if(saved){
-      const points=JSON.parse(saved);
+try{
 
-      if(Array.isArray(points) && points.length>0){
-        routeLine.setLatLngs(points);
-        lastTrailPoint=L.latLng(points[points.length-1]);
-        statusText.textContent="Trajeto anterior recuperado";
-      }
-    }
-  }catch(error){
-    console.log("Erro ao recuperar caminho:",error);
-  }
+const saved=localStorage.getItem(ROUTE_STORAGE_KEY);
+
+if(saved){
+
+const points=JSON.parse(saved);
+
+if(Array.isArray(points)&&points.length>0){
+
+routeLine.setLatLngs(points);
+
+lastTrailPoint=L.latLng(
+points[points.length-1]
+);
+
+statusText.textContent="Trajeto anterior recuperado";
+
 }
 
-// Ativa a orientação do celular, se disponível
+}
+
+}catch(error){
+console.log("Erro ao recuperar caminho:",error);
+}
+
+}
+
+// SENSOR DE DIREÇÃO
 async function enableOrientation(){
 
-  if(orientationEnabled || !("DeviceOrientationEvent" in window)){
-    return;
-  }
-
-  try{
-    if(typeof DeviceOrientationEvent.requestPermission==="function"){
-      const permission=await DeviceOrientationEvent.requestPermission();
-
-      if(permission!=="granted"){
-        return;
-      }
-    }
-
-    window.addEventListener(
-      "deviceorientation",
-      updateHeading,
-      true
-    );
-
-    orientationEnabled=true;
-
-  }catch(error){
-    console.log("Bússola indisponível:",error);
-  }
+if(orientationEnabled||
+!("DeviceOrientationEvent" in window)){
+return;
 }
 
-// Atualiza o cone de direção
+try{
+
+if(typeof DeviceOrientationEvent.requestPermission==="function"){
+
+const permission=
+await DeviceOrientationEvent.requestPermission();
+
+if(permission!=="granted")return;
+
+}
+
+window.addEventListener(
+"deviceorientation",
+updateHeading,
+true
+);
+
+orientationEnabled=true;
+
+}catch(error){
+console.log("Bússola indisponível:",error);
+}
+
+}
+
+// ATUALIZA CONE DE DIREÇÃO
 function updateHeading(event){
 
-  let heading=null;
+let heading=null;
 
-  if(typeof event.webkitCompassHeading==="number"){
-    heading=event.webkitCompassHeading;
-  }else if(typeof event.alpha==="number"){
-    heading=360-event.alpha;
-  }
-
-  if(heading!==null && Number.isFinite(heading)){
-    const bearing=document.getElementById("gpsBearing");
-
-    if(bearing){
-      bearing.style.transform=
-        "rotate("+((heading+360)%360)+"deg)";
-    }
-  }
+if(typeof event.webkitCompassHeading==="number"){
+heading=event.webkitCompassHeading;
+}else if(typeof event.alpha==="number"){
+heading=360-event.alpha;
 }
 
-// Adiciona um ponto ao caminho
+if(heading!==null&&Number.isFinite(heading)){
+
+const bearing=document.getElementById("gpsBearing");
+
+if(bearing){
+bearing.style.transform=
+"rotate("+((heading+360)%360)+"deg)";
+}
+
+}
+
+}
+
+// REGISTRA PONTO NO CAMINHO
 function addRoutePoint(position){
 
-  const currentPoint=L.latLng(
-    position.coords.latitude,
-    position.coords.longitude
-  );
+const currentPoint=L.latLng(
+position.coords.latitude,
+position.coords.longitude
+);
 
-  // Só registra quando a pessoa se desloca mais de 3 metros
-  if(
-    lastTrailPoint===null ||
-    lastTrailPoint.distanceTo(currentPoint)>3
-  ){
-    routeLine.addLatLng(currentPoint);
-    lastTrailPoint=currentPoint;
-    saveRoute();
-  }
+// REGISTRA APÓS DESLOCAMENTO SUPERIOR A 3 METROS
+if(
+lastTrailPoint===null||
+lastTrailPoint.distanceTo(currentPoint)>3
+){
+
+routeLine.addLatLng(currentPoint);
+
+lastTrailPoint=currentPoint;
+
+saveRoute();
+
 }
 
-// Recebe a posição do GPS
+}
+
+// RECEBE LOCALIZAÇÃO
 function updatePosition(position){
 
-  const latitude=position.coords.latitude;
-  const longitude=position.coords.longitude;
-  const accuracy=Math.max(1,position.coords.accuracy);
-  const userPosition=[latitude,longitude];
+const latitude=position.coords.latitude;
+const longitude=position.coords.longitude;
+const accuracy=Math.max(1,position.coords.accuracy);
 
-  // Atualiza coordenadas
-  coordinatesText.textContent=
-    latitude.toFixed(6)+", "+longitude.toFixed(6);
+const userPosition=[latitude,longitude];
 
-  accuracyText.textContent=
-    "Precisão aproximada: "+Math.round(accuracy)+" metros";
+// MOSTRA COORDENADAS
+coordinatesText.textContent=
+latitude.toFixed(6)+", "+longitude.toFixed(6);
 
-  statusText.textContent="GPS ativo • acompanhando você";
+accuracyText.textContent=
+"Precisão aproximada: "+Math.round(accuracy)+" metros";
 
-  // Cria ou movimenta o ponto azul
-  if(userMarker===null){
-    userMarker=L.marker(userPosition,{
-      icon:createGpsIcon(),
-      title:"Minha localização",
-      zIndexOffset:1000
-    }).addTo(map);
-  }else{
-    userMarker.setLatLng(userPosition);
-  }
+statusText.textContent="GPS ativo • acompanhando você";
 
-  // Cria ou atualiza o círculo de precisão
-  if(accuracyCircle===null){
-    accuracyCircle=L.circle(userPosition,{
-      radius:accuracy,
-      color:"#3985f4",
-      weight:1,
-      opacity:.4,
-      fillColor:"#3985f4",
-      fillOpacity:.16
-    }).addTo(map);
-  }else{
-    accuracyCircle.setLatLng(userPosition);
-    accuracyCircle.setRadius(accuracy);
-  }
+// CRIA OU ATUALIZA PONTO AZUL
+if(userMarker===null){
 
-  // Registra o caminho percorrido
-  addRoutePoint(position);
+userMarker=L.marker(userPosition,{
+icon:createGpsIcon(),
+title:"Minha localização",
+zIndexOffset:1000
+}).addTo(map);
 
-  // Centraliza na primeira localização
-  if(firstPosition){
-    map.setView(userPosition,17);
-    firstPosition=false;
-  }else{
-    // Continua acompanhando a pessoa
-    if(!map.getBounds().contains(userPosition)){
-      map.panTo(userPosition,{animate:true});
-    }
-  }
+}else{
+
+userMarker.setLatLng(userPosition);
+
 }
 
-// Trata erros de GPS
+// CÍRCULO DE PRECISÃO
+if(accuracyCircle===null){
+
+accuracyCircle=L.circle(userPosition,{
+radius:accuracy,
+color:"#3985f4",
+weight:1,
+opacity:.4,
+fillColor:"#3985f4",
+fillOpacity:.16
+}).addTo(map);
+
+}else{
+
+accuracyCircle.setLatLng(userPosition);
+accuracyCircle.setRadius(accuracy);
+
+}
+
+// REGISTRA CAMINHO
+addRoutePoint(position);
+
+// CENTRALIZA NA PRIMEIRA LOCALIZAÇÃO
+if(firstPosition){
+
+map.setView(userPosition,17);
+firstPosition=false;
+
+}else{
+
+// ACOMPANHA O DESLOCAMENTO
+if(!map.getBounds().contains(userPosition)){
+map.panTo(userPosition,{animate:true});
+}
+
+}
+
+}
+
+// ERROS DE GPS
 function gpsError(error){
 
-  let message="Não foi possível obter sua localização.";
+let message="Não foi possível obter sua localização.";
 
-  if(error.code===1){
-    message="Permita a localização no Chrome.";
-  }
-
-  if(error.code===2){
-    message="Sinal GPS indisponível. Tente em área aberta.";
-  }
-
-  if(error.code===3){
-    message="GPS demorou para responder. Tente novamente.";
-  }
-
-  statusText.textContent="Problema no GPS";
-  accuracyText.textContent=message;
+if(error.code===1){
+message="Permita o acesso à localização no Chrome.";
 }
 
-// Inicia o GPS
+if(error.code===2){
+message="Sinal GPS indisponível. Tente em local aberto.";
+}
+
+if(error.code===3){
+message="GPS demorou para responder. Tente novamente.";
+}
+
+statusText.textContent="Problema no GPS";
+accuracyText.textContent=message;
+
+}
+
+// INICIAR GPS
 startButton.addEventListener("click",async function(){
 
-  if(!map){
-    statusText.textContent="Mapa não está pronto";
-    return;
-  }
+if(!map){
+statusText.textContent="Mapa não está pronto";
+return;
+}
 
-  if(!navigator.geolocation){
-    statusText.textContent="GPS não disponível neste navegador";
-    return;
-  }
+if(!navigator.geolocation){
+statusText.textContent="GPS não disponível";
+return;
+}
 
-  if(watchId!==null)return;
+if(watchId!==null)return;
 
-  await enableOrientation();
+await enableOrientation();
 
-  statusText.textContent="Procurando sinal GPS...";
-  accuracyText.textContent="Aguarde alguns instantes em local aberto.";
+statusText.textContent="Procurando sinal GPS...";
 
-  startButton.disabled=true;
-  stopButton.disabled=false;
+accuracyText.textContent=
+"Aguarde alguns instantes em local aberto.";
 
-  watchId=navigator.geolocation.watchPosition(
-    updatePosition,
-    gpsError,
-    {
-      enableHighAccuracy:true,
-      maximumAge:1000,
-      timeout:30000
-    }
-  );
+startButton.disabled=true;
+stopButton.disabled=false;
+
+// ACOMPANHAMENTO CONTÍNUO
+watchId=navigator.geolocation.watchPosition(
+updatePosition,
+gpsError,
+{
+enableHighAccuracy:true,
+maximumAge:1000,
+timeout:30000
+}
+);
+
 });
 
-// Para o GPS
+// PARAR GPS
 stopButton.addEventListener("click",function(){
 
-  if(watchId!==null){
-    navigator.geolocation.clearWatch(watchId);
-    watchId=null;
-  }
+if(watchId!==null){
 
-  startButton.disabled=false;
-  stopButton.disabled=true;
+navigator.geolocation.clearWatch(watchId);
+watchId=null;
 
-  statusText.textContent="GPS pausado";
+}
+
+startButton.disabled=false;
+stopButton.disabled=true;
+
+statusText.textContent="GPS pausado";
+
 });
 
-// Limpa o caminho salvo
+// LIMPAR CAMINHO
 clearButton.addEventListener("click",function(){
 
-  if(!routeLine)return;
+if(!routeLine)return;
 
-  routeLine.setLatLngs([]);
-  lastTrailPoint=null;
+routeLine.setLatLngs([]);
 
-  try{
-    localStorage.removeItem(ROUTE_STORAGE_KEY);
-  }catch(error){
-    console.log(error);
-  }
+lastTrailPoint=null;
 
-  statusText.textContent="Caminho apagado";
+try{
+localStorage.removeItem(ROUTE_STORAGE_KEY);
+}catch(error){
+console.log(error);
+}
+
+statusText.textContent="Caminho apagado";
+
 });
 
-// Inicializa o mapa ou tenta carregar a biblioteca alternativa
+// VERIFICA SE A BIBLIOTECA FOI CARREGADA
 function startApplication(){
 
-  if(typeof L!=="undefined"){
-    initializeMap();
-    return;
-  }
-
-  // Tenta carregar Leaflet por outro servidor
-  const fallbackScript=document.createElement("script");
-
-  fallbackScript.src=
-    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-
-  fallbackScript.onload=function(){
-    initializeMap();
-  };
-
-  fallbackScript.onerror=function(){
-    statusText.textContent="Falha ao carregar mapa";
-    showMessage("O celular não conseguiu carregar o mapa. Verifique a internet e tente novamente.");
-  };
-
-  document.head.appendChild(fallbackScript);
+if(typeof L!=="undefined"){
+initializeMap();
+return;
 }
 
-// Registra o Service Worker
-if("serviceWorker" in navigator && location.protocol==="https:"){
-  window.addEventListener("load",function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(error){
-      console.log("Service Worker:",error);
-    });
-  });
+// TENTA CARREGAR POR OUTRO SERVIDOR
+const script=document.createElement("script");
+
+script.src=
+"https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js";
+
+script.onload=function(){
+initializeMap();
+};
+
+script.onerror=function(){
+
+statusText.textContent="Falha ao carregar mapa";
+
+showMessage(
+"Não foi possível carregar o mapa. Verifique a conexão com a internet."
+);
+
+};
+
+document.head.appendChild(script);
+
 }
 
-// Inicia o aplicativo
+// SERVICE WORKER
+if("serviceWorker" in navigator&&location.protocol==="https:"){
+
+window.addEventListener("load",function(){
+
+navigator.serviceWorker.register("./sw.js")
+.catch(function(error){
+console.log("Erro no Service Worker:",error);
+});
+
+});
+
+}
+
+// INICIA APLICATIVO
 startApplication();
+
 </script>
 
 </body>
