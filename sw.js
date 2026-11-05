@@ -1,14 +1,10 @@
-// Nome da versão do cache do aplicativo
-const CACHE_NAME = "gps-brasil-3d-v1";
+// Identificador do cache local do aplicativo
+const CACHE_NAME = "gps-brasil-2d-v1";
 
-// Arquivos locais básicos do aplicativo
-const APP_FILES = [
-  "./",
-  "./index.html",
-  "./manifest.json"
-];
+// Arquivos básicos que podem ser guardados no aparelho
+const APP_FILES = ["./", "./index.html", "./manifest.json"];
 
-// Instala o Service Worker e guarda os arquivos locais
+// Guarda os arquivos locais durante a instalação
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
@@ -18,35 +14,37 @@ self.addEventListener("install", function (event) {
   self.skipWaiting();
 });
 
-// Remove caches antigos ao ativar uma nova versão
+// Limpa versões antigas do cache
 self.addEventListener("activate", function (event) {
   event.waitUntil(
     caches.keys().then(function (names) {
-      return Promise.all(
-        names.map(function (name) {
-          if (name !== CACHE_NAME) return caches.delete(name);
-        })
-      );
+      return Promise.all(names.map(function (name) {
+        if (name !== CACHE_NAME) return caches.delete(name);
+      }));
     })
   );
   self.clients.claim();
 });
 
-// Entrega os arquivos locais pelo cache quando possível
+// Disponibiliza arquivos locais quando o aparelho estiver sem conexão
 self.addEventListener("fetch", function (event) {
   const request = event.request;
   const url = new URL(request.url);
 
-  // Não intercepta mapas ou bibliotecas hospedados em outros domínios
+  // Não tenta guardar blocos de mapas ou bibliotecas externas
   if (url.origin !== self.location.origin) return;
 
   event.respondWith(
     caches.match(request).then(function (cached) {
-      return cached || fetch(request).then(function (response) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(function (cache) {
-          cache.put(request, copy);
-        });
+      if (cached) return cached;
+
+      return fetch(request).then(function (response) {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(request, copy);
+          });
+        }
         return response;
       });
     })
