@@ -1,34 +1,32 @@
-# GPS Brasil 3D
+# GPS Brasil - Mapa de Ruas 2D
 
-Primeira versão do aplicativo GPS para GitHub Pages.
+Esta versão substitui o mapa 3D pela visualização 2D, de cima, com ruas e ponto azul de localização.
 
 ## Arquivos
-- `index.html`: interface, mapa e localização do aparelho.
-- `manifest.json`: configura a instalação como aplicativo PWA.
-- `sw.js`: guarda os arquivos locais básicos para abrir a interface novamente.
+- `index.html` - mapa 2D, interface e acompanhamento contínuo do GPS.
+- `manifest.json` - configuração de instalação PWA.
+- `sw.js` - cache dos arquivos básicos do aplicativo.
 
-## Publicar no GitHub Pages
-1. Crie um repositório público chamado `gps-brasil-3d`.
-2. Envie os três arquivos para a raiz do repositório.
-3. Abra Settings > Pages.
-4. Em Build and deployment, selecione Deploy from a branch.
-5. Selecione a branch `main` e a pasta `/ (root)`.
-6. Salve e aguarde o endereço do GitHub Pages.
+## Publicar no mesmo repositório GitHub
+1. Extraia este ZIP.
+2. Abra seu repositório `gps-brasil-3d` (ou o nome que você escolheu).
+3. Substitua os arquivos antigos pelos três arquivos desta versão.
+4. Faça commit das alterações.
+5. Aguarde o GitHub Pages atualizar e abra o site em HTTPS.
 
-## Teste
-- Abra o endereço publicado usando HTTPS.
-- Permita o acesso à localização quando o navegador solicitar.
-- Toque em “Minha localização”.
-- O GPS do aparelho fornece coordenadas; o navegador precisa de permissão.
-- O teste de GPS deve ser feito em um celular com GPS ativo.
+## Como testar
+1. Abra o site em um celular.
+2. Permita o acesso à localização.
+3. Toque em "Iniciar localização".
+4. O ponto azul acompanhará as atualizações do GPS enquanto você caminha.
+5. Toque em "Parar" para encerrar o acompanhamento.
 
-## Limitações desta versão
-- O mapa de satélite usa uma camada online de demonstração Sentinel-2/EOX.
-- A inclinação do mapa cria perspectiva visual; ainda não é relevo 3D real.
-- O Service Worker guarda apenas os arquivos locais do aplicativo. Ele NÃO baixa nem armazena o mapa de satélite.
-- A biblioteca MapLibre é carregada por CDN nesta versão inicial.
-- Portanto, esta versão ainda NÃO oferece mapa offline. Para isso será necessário adicionar a biblioteca local e pacotes de mapas offline, respeitando a licença e as condições do fornecedor das imagens.
-- O GPS pode obter coordenadas sem internet em aparelhos com receptor GNSS, mas a precisão e o tempo de localização variam conforme o aparelho e o ambiente.
+## Importante sobre o funcionamento offline
+Esta versão usa blocos de mapa do OpenStreetMap e carrega a biblioteca Leaflet pela internet. O Service Worker guarda somente os arquivos básicos do aplicativo. Portanto, o mapa de ruas ainda precisa de internet nesta etapa.
 
-## Próxima etapa
-Preparar armazenamento e leitura de pacotes offline de mapas para regiões do Brasil. O Brasil inteiro em alta resolução por satélite ocupa muito espaço; o ideal é permitir baixar áreas por região.
+O GPS do aparelho pode receber coordenadas sem internet, dependendo do dispositivo, da recepção dos satélites e das permissões. Para visualizar ruas sem conexão, será necessário adicionar pacotes de mapas offline, armazenados no aparelho, com fonte e licença adequadas. Não faça download em massa nem pré-carregamento dos servidores públicos padrão do OpenStreetMap.
+
+## Observações
+- O mapa é 2D, visto de cima, sem inclinação ou edifícios 3D.
+- O ponto azul indica a posição informada pelo aparelho; o círculo representa a precisão aproximada.
+- O navegador normalmente exige HTTPS para liberar a geolocalização.
