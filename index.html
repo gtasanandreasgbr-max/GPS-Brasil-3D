@@ -4,362 +4,314 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#102536">
+<meta name="theme-color" content="#ffffff">
 <title>GPS Brasil</title>
-
+<link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-* {
-box-sizing: border-box;
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0}
+body{font-family:Arial,sans-serif;overflow:hidden;background:#e9edf1;color:#243342}
+#map{position:absolute;inset:0;z-index:1;background:#e9edf1}
+
+.topbar{
+position:absolute;z-index:1000;top:12px;left:12px;right:12px;
+display:flex;align-items:center;justify-content:space-between;
+gap:10px;padding:11px 14px;border-radius:15px;
+background:rgba(255,255,255,.96);
+box-shadow:0 2px 12px rgba(35,55,75,.16)
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{
+width:38px;height:38px;display:grid;place-items:center;
+border-radius:11px;color:white;background:#2584ed;font-size:24px
+}
+.brand strong{display:block;font-size:14px}
+.brand small{display:block;margin-top:3px;color:#71808d;font-size:10px}
+#status{max-width:48%;font-size:11px;color:#5c6b78;text-align:right}
+
+.bottom-panel{
+position:absolute;z-index:1000;left:12px;right:12px;bottom:13px;
+padding:13px;border-radius:16px;background:rgba(255,255,255,.97);
+box-shadow:0 2px 15px rgba(35,55,75,.19)
+}
+.panel-label{margin-bottom:6px;color:#7a8792;font-size:10px;font-weight:bold}
+#coordinates{min-height:18px;font-size:14px;font-weight:bold}
+#accuracy{margin-top:5px;color:#71808d;font-size:11px}
+.buttons{display:flex;gap:9px;margin-top:12px}
+button{
+min-height:43px;padding:0 14px;border:0;border-radius:10px;
+color:white;font-size:12px;font-weight:bold;cursor:pointer
+}
+#startButton{flex:1;background:#2584ed}
+#stopButton{background:#647482}
+button:disabled{opacity:.48}
+
+.gps-marker{position:relative;width:44px;height:44px}
+.gps-bearing{
+position:absolute;inset:0;transform:rotate(0deg);
+transform-origin:50% 50%;transition:transform .18s linear
+}
+.gps-cone{
+position:absolute;left:12px;top:-2px;width:20px;height:29px;
+background:rgba(36,125,244,.36);
+clip-path:polygon(50% 0,100% 100%,50% 78%,0 100%)
+}
+.gps-dot{
+position:absolute;left:10px;top:10px;width:24px;height:24px;
+border:3px solid white;border-radius:50%;background:#3985f4;
+box-shadow:0 1px 5px rgba(0,0,0,.38)
 }
 
-html, body {
-margin: 0;
-width: 100%;
-height: 100%;
-font-family: Arial, sans-serif;
-overflow: hidden;
-background: #eef2f4;
+.leaflet-control-zoom{
+margin-top:82px!important;border:0!important;
+box-shadow:0 2px 9px rgba(0,0,0,.16)!important
 }
+.leaflet-control-zoom a{color:#34495a!important;border:0!important}
+.leaflet-control-attribution{font-size:9px!important}
 
-#map {
-position: absolute;
-inset: 0;
-z-index: 1;
-}
-
-.topbar {
-position: absolute;
-top: 12px;
-left: 12px;
-right: 12px;
-z-index: 1000;
-background: white;
-padding: 14px;
-border-radius: 14px;
-box-shadow: 0 3px 15px #0002;
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-.logo {
-font-size: 17px;
-font-weight: bold;
-color: #0879d1;
-}
-
-.subtitle {
-font-size: 10px;
-color: #777;
-margin-top: 4px;
-}
-
-#status {
-font-size: 11px;
-color: #526977;
-text-align: right;
-max-width: 45%;
-}
-
-.panel {
-position: absolute;
-z-index: 1000;
-bottom: 12px;
-left: 12px;
-right: 12px;
-background: white;
-padding: 16px;
-border-radius: 16px;
-box-shadow: 0 3px 18px #0003;
-}
-
-.label {
-font-size: 10px;
-color: #718492;
-font-weight: bold;
-margin-bottom: 8px;
-}
-
-#coordinates {
-font-size: 14px;
-font-weight: bold;
-color: #172b3a;
-}
-
-#accuracy {
-font-size: 11px;
-color: #718492;
-margin-top: 6px;
-}
-
-.buttons {
-display: flex;
-gap: 10px;
-margin-top: 14px;
-}
-
-button {
-border: none;
-padding: 14px;
-border-radius: 10px;
-font-size: 13px;
-font-weight: bold;
-color: white;
-cursor: pointer;
-}
-
-#start {
-flex: 1;
-background: #0879d1;
-}
-
-#stop {
-background: #526977;
-}
-
-button:disabled {
-opacity: .5;
-}
-
-.gps-dot {
-width: 20px;
-height: 20px;
-background: #1688f8;
-border: 4px solid white;
-border-radius: 50%;
-box-shadow: 0 0 0 7px #1688f833,
-0 2px 7px #0007;
-}
-
-.leaflet-control-zoom a {
-color: #0879d1 !important;
-}
-
-@media(max-width:480px) {
-.topbar {
-top: 9px;
-left: 9px;
-right: 9px;
-}
-
-.panel {
-left: 9px;
-right: 9px;
-bottom: 9px;
-}
+@media(max-width:480px){
+.topbar{top:8px;left:8px;right:8px;padding:9px 10px}
+.bottom-panel{left:8px;right:8px;bottom:8px}
+#status{max-width:42%;font-size:10px}
 }
 </style>
 </head>
 
 <body>
 
-<!-- MAPA 2D VISTO DE CIMA -->
 <div id="map"></div>
 
-<!-- CABEÇALHO -->
-<div class="topbar">
+<header class="topbar">
+<div class="brand">
+<div class="brand-icon">⌖</div>
 <div>
-<div class="logo">⌖ GPS BRASIL</div>
-<div class="subtitle">MAPA DE RUAS • CAMINHADA</div>
+<strong>GPS BRASIL</strong>
+<small>MAPA DE RUAS • MODO CAMINHADA</small>
 </div>
-<div id="status">Aguardando GPS</div>
 </div>
+<div id="status">Mapa pronto • aguardando GPS</div>
+</header>
 
-<!-- PAINEL DE LOCALIZAÇÃO -->
-<div class="panel">
-
-<div class="label">MINHA LOCALIZAÇÃO</div>
-
-<div id="coordinates">
-Toque em iniciar localização
-</div>
-
-<div id="accuracy">
-Sua posição aparecerá no mapa.
-</div>
-
+<section class="bottom-panel">
+<div class="panel-label">MINHA LOCALIZAÇÃO</div>
+<div id="coordinates">Toque em “Iniciar localização”</div>
+<div id="accuracy">O ponto azul mostrará sua posição no mapa.</div>
 <div class="buttons">
-<button id="start">● INICIAR LOCALIZAÇÃO</button>
-<button id="stop" disabled>PARAR</button>
+<button id="startButton">● Iniciar localização</button>
+<button id="stopButton" disabled>Parar</button>
 </div>
+</section>
 
-</div>
-
-<!-- BIBLIOTECA DO MAPA -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+// Elementos da interface
+const statusText=document.getElementById("status");
+const coordinatesText=document.getElementById("coordinates");
+const accuracyText=document.getElementById("accuracy");
+const startButton=document.getElementById("startButton");
+const stopButton=document.getElementById("stopButton");
 
-// ELEMENTOS DA TELA
-const statusText = document.getElementById("status");
-const coordinates = document.getElementById("coordinates");
-const accuracy = document.getElementById("accuracy");
-const startButton = document.getElementById("start");
-const stopButton = document.getElementById("stop");
+// Centro inicial do Brasil
+const brasilCenter=[-14.2,-51.9];
 
-// CENTRO INICIAL DO BRASIL
-const map = L.map("map", {
-zoomControl: false
-}).setView([-14.2, -51.9], 4);
+// Cria o mapa 2D
+const map=L.map("map",{
+zoomControl:false,
+attributionControl:true
+}).setView(brasilCenter,4);
 
-// MAPA DE RUAS OPENSTREETMAP
-// VISUALIZAÇÃO PLANA, SEM 3D
+// Mapa claro com ruas e pontos de interesse
 L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
 {
-maxZoom: 19,
-attribution: '&copy; OpenStreetMap'
+subdomains:"abcd",
+maxZoom:20,
+attribution:
+'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
 }
 ).addTo(map);
 
-// CONTROLE DE ZOOM
-L.control.zoom({
-position: "topright"
-}).addTo(map);
+// Controle de aproximação
+L.control.zoom({position:"topright"}).addTo(map);
 
-// MARCADOR AZUL DE LOCALIZAÇÃO
-const gpsIcon = L.divIcon({
-className: "",
-html: '<div class="gps-dot"></div>',
-iconSize: [20,20],
-iconAnchor: [10,10]
+// Ícone azul com cone de direção
+const gpsIcon=L.divIcon({
+className:"",
+html:
+'<div class="gps-marker">'+
+'<div class="gps-bearing" id="gpsBearing">'+
+'<div class="gps-cone"></div>'+
+'</div>'+
+'<div class="gps-dot"></div>'+
+'</div>',
+iconSize:[44,44],
+iconAnchor:[22,22]
 });
 
-let marker = null;
-let circle = null;
-let watchId = null;
+// Variáveis do GPS
+let userMarker=null;
+let accuracyCircle=null;
+let watchId=null;
+let orientationEnabled=false;
 
-// RECEBE A POSIÇÃO DO GPS
-function updatePosition(position) {
+// Atualiza a direção do cone
+function updateHeading(event){
+let heading=null;
 
-const lat = position.coords.latitude;
-const lon = position.coords.longitude;
-const precision = Math.round(position.coords.accuracy);
+// Direção fornecida por alguns iPhones
+if(typeof event.webkitCompassHeading==="number"){
+heading=event.webkitCompassHeading;
+}else if(typeof event.alpha==="number"){
+heading=360-event.alpha;
+}
 
-const positionGPS = [lat, lon];
+if(heading!==null && Number.isFinite(heading)){
+const bearing=document.getElementById("gpsBearing");
+if(bearing){
+bearing.style.transform="rotate("+((heading+360)%360)+"deg)";
+}
+}
+}
 
-// MOSTRA AS COORDENADAS
-coordinates.textContent =
-lat.toFixed(6) + ", " + lon.toFixed(6);
+// Ativa a bússola do aparelho, se disponível
+async function enableOrientation(){
+if(orientationEnabled || !("DeviceOrientationEvent" in window))return;
 
-accuracy.textContent =
-"Precisão aproximada: " + precision + " metros";
+try{
+if(typeof DeviceOrientationEvent.requestPermission==="function"){
+const permission=await DeviceOrientationEvent.requestPermission();
+if(permission!=="granted")return;
+}
 
-statusText.textContent = "GPS ATIVO";
+window.addEventListener("deviceorientation",updateHeading,true);
+orientationEnabled=true;
 
-// CRIA OU ATUALIZA O PONTO AZUL
-if (marker === null) {
+}catch(error){
+console.log("Sensor de direção indisponível:",error);
+}
+}
 
-marker = L.marker(positionGPS, {
-icon: gpsIcon
+// Recebe e atualiza a posição do GPS
+function updatePosition(position){
+
+const latitude=position.coords.latitude;
+const longitude=position.coords.longitude;
+const accuracy=Math.max(1,position.coords.accuracy);
+const userPosition=[latitude,longitude];
+
+// Mostra coordenadas e precisão
+coordinatesText.textContent=
+latitude.toFixed(6)+", "+longitude.toFixed(6);
+
+accuracyText.textContent=
+"Precisão aproximada: "+Math.round(accuracy)+" metros";
+
+statusText.textContent=
+"GPS ativo • acompanhando sua caminhada";
+
+// Cria ou movimenta o ponto azul
+if(userMarker===null){
+userMarker=L.marker(userPosition,{
+icon:gpsIcon,
+title:"Minha localização",
+zIndexOffset:1000
 }).addTo(map);
-
-} else {
-
-marker.setLatLng(positionGPS);
-
+}else{
+userMarker.setLatLng(userPosition);
 }
 
-// MOSTRA A PRECISÃO DO GPS
-if (circle === null) {
-
-circle = L.circle(positionGPS, {
-radius: precision,
-color: "#1688f8",
-weight: 1,
-fillColor: "#1688f8",
-fillOpacity: 0.12
+// Cria ou atualiza o círculo de precisão
+if(accuracyCircle===null){
+accuracyCircle=L.circle(userPosition,{
+radius:accuracy,
+color:"#3985f4",
+weight:1,
+opacity:.35,
+fillColor:"#3985f4",
+fillOpacity:.16
 }).addTo(map);
-
-} else {
-
-circle.setLatLng(positionGPS);
-circle.setRadius(precision);
-
+}else{
+accuracyCircle.setLatLng(userPosition);
+accuracyCircle.setRadius(accuracy);
 }
 
-// CENTRALIZA O MAPA NA PESSOA
-map.setView(positionGPS, 17);
-
+// Acompanha a pessoa no mapa
+if(map.getZoom()<16){
+map.setView(userPosition,17);
+}else{
+map.panTo(userPosition,{animate:true,duration:.45});
+}
 }
 
-// TRATA ERROS DO GPS
-function gpsError(error) {
+// Mostra erros de localização
+function gpsError(error){
+let message="Não foi possível obter sua localização.";
 
-if (error.code === 1) {
-statusText.textContent = "Permita a localização";
+if(error.code===1)
+message="Permita o acesso à localização no navegador.";
+
+if(error.code===2)
+message="Sinal GPS indisponível. Tente em área aberta.";
+
+if(error.code===3)
+message="A localização demorou. Tente novamente.";
+
+statusText.textContent=message;
+accuracyText.textContent=message;
 }
 
-else if (error.code === 2) {
-statusText.textContent = "Sinal GPS indisponível";
-}
+// Inicia o acompanhamento
+startButton.addEventListener("click",async function(){
 
-else if (error.code === 3) {
-statusText.textContent = "Tempo esgotado";
-}
-
-else {
-statusText.textContent = "Erro no GPS";
-}
-
-}
-
-// INICIA O GPS
-function startGPS() {
-
-if (!navigator.geolocation) {
-
-statusText.textContent = "GPS não suportado";
+if(!("geolocation" in navigator)){
+statusText.textContent="Este navegador não oferece suporte ao GPS.";
 return;
-
 }
 
-if (watchId !== null) {
-navigator.geolocation.clearWatch(watchId);
-}
+if(watchId!==null)return;
 
-statusText.textContent = "Procurando localização...";
-coordinates.textContent = "Aguardando sinal GPS...";
+await enableOrientation();
 
-startButton.disabled = true;
-stopButton.disabled = false;
+statusText.textContent="Solicitando sinal do GPS...";
+startButton.disabled=true;
+stopButton.disabled=false;
 
-// ACOMPANHAMENTO CONTÍNUO
-watchId = navigator.geolocation.watchPosition(
+// Atualiza continuamente enquanto a pessoa caminha
+watchId=navigator.geolocation.watchPosition(
 updatePosition,
 gpsError,
 {
-enableHighAccuracy: true,
-maximumAge: 1000,
-timeout: 20000
+enableHighAccuracy:true,
+maximumAge:1000,
+timeout:20000
 }
 );
+});
 
-}
+// Para o acompanhamento
+stopButton.addEventListener("click",function(){
 
-// PARA O GPS
-function stopGPS() {
-
-if (watchId !== null) {
-
+if(watchId!==null){
 navigator.geolocation.clearWatch(watchId);
-watchId = null;
-
+watchId=null;
 }
 
-statusText.textContent = "GPS pausado";
+startButton.disabled=false;
+stopButton.disabled=true;
+statusText.textContent="GPS pausado";
+});
 
-startButton.disabled = false;
-stopButton.disabled = true;
-
+// Registra o aplicativo para instalação
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("./sw.js").catch(function(error){
+console.log("Erro ao registrar aplicativo:",error);
+});
+});
 }
-
-// BOTÕES
-startButton.addEventListener("click", startGPS);
-stopButton.addEventListener("click", stopGPS);
-
 </script>
 
 </body>
